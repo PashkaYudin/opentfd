@@ -3,24 +3,24 @@ from datetime import timedelta
 from time import time, sleep
 from contextlib import suppress
 
-import mtranslate
+# import mtranslate
 from telethon import TelegramClient, events, sync, errors, custom
 from telethon.tl.types import UpdateDraftMessage
-from proxy import mediatube_proxy
+# from proxy import mediatube_proxy
 from supported_langs import supported_langs
 import secret
 import getopt
 import re
 import sys
 
-default_proxy = None
-try:
-    opts, args = getopt.getopt(sys.argv[1:], 'p', ['proxy'])
-    for opt, arg in opts:
-        if opt in ('-p', '--proxy'):
-            default_proxy = mediatube_proxy
-except getopt.GetoptError:
-    sys.exit(2)
+default_proxy = ''
+# try:
+#     opts, args = getopt.getopt(sys.argv[1:], 'p', ['proxy'])
+#     for opt, arg in opts:
+#         if opt in ('-p', '--proxy'):
+#             default_proxy = mediatube_proxy
+# except getopt.GetoptError:
+#     sys.exit(2)
 
 client = TelegramClient('opentfd_session', secret.api_id, secret.api_hash, proxy=default_proxy).start()
 last_msg = None
@@ -69,7 +69,8 @@ async def run_command_shell(cmd, e):
         # if lines_count <= 10:
         msg_text = ''
         for ln in msg_lines:
-            msg_text += f'`${ln}`\n'
+            msg_text += '`${ln}`\n'
+                
         # current_time = time()
         # if current_time - last_update_time >= 1:
         with suppress(Exception):
@@ -87,33 +88,6 @@ async def run_command_shell(cmd, e):
     # results = await process.communicate()
     # return ''.join(x.decode() for x in results)
 
-
-@client.on(events.Raw(types=UpdateDraftMessage))
-async def translator(event: events.NewMessage.Event):
-    global draft_semaphore
-    await draft_semaphore.acquire()
-    try:
-        draft_list = await client.get_drafts()
-        for draft in draft_list:
-            if draft.is_empty:
-                continue
-            text = draft.text
-            for lang_code in supported_langs.values():
-                if text.endswith('/{0}'.format(lang_code)):
-                    translated = mtranslate.translate(text[:-(len(lang_code) + 1)], lang_code, 'auto')
-                    for i in range(3):
-                        try:
-                            await draft.set_message(text=translated)
-                            await asyncio.sleep(7)
-                            return
-                        except Exception as e:
-                            print(e)
-    except Exception as e:
-        print(e)
-    finally:
-        draft_semaphore.release()
-
-
 @client.on(events.NewMessage(pattern=r'^!type->.*', outgoing=True))
 async def typing_imitate(message: events.NewMessage.Event):
     text, text_out = str(message.raw_text).split('->')[-1], str()
@@ -123,9 +97,9 @@ async def typing_imitate(message: events.NewMessage.Event):
             text_out += letter
             try:
                 if word.index(letter) % 2 == 1:
-                    await message.edit(f'`{text_out}`|')
+                    await message.edit('`{text_out}`|')
                 else:
-                    await message.edit(f'`{text_out}`')
+                    await message.edit('`{text_out}`')
                 await asyncio.sleep(0.2)
             except errors.MessageNotModifiedError:
                 continue
@@ -203,10 +177,6 @@ async def merger(event: custom.Message):
             last_msg_time = event_time
 
 
-final_credits = ["OpenTFD is running", "Do not close this window", "t.me/mediatube_stream",
-                 "https://github.com/mediatube/opentfd\n", "Supported languages:", ''
-                 ]
-
-print('\n'.join(final_credits))
-print('\n'.join([f'{k:<25}/{v}' for k, v in supported_langs.items()]))
+print('service is running')
 client.run_until_disconnected()
+
