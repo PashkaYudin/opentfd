@@ -3,11 +3,8 @@ from datetime import timedelta
 from time import time, sleep
 from contextlib import suppress
 
-# import mtranslate
 from telethon import TelegramClient, events, sync, errors, custom
 from telethon.tl.types import UpdateDraftMessage
-# from proxy import mediatube_proxy
-from supported_langs import supported_langs
 import secret
 import getopt
 import re
