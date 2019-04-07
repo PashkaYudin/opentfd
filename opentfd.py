@@ -13,16 +13,8 @@ import getopt
 import re
 import sys
 
-default_proxy = ''
-# try:
-#     opts, args = getopt.getopt(sys.argv[1:], 'p', ['proxy'])
-#     for opt, arg in opts:
-#         if opt in ('-p', '--proxy'):
-#             default_proxy = mediatube_proxy
-# except getopt.GetoptError:
-#     sys.exit(2)
 
-client = TelegramClient('opentfd_session', secret.api_id, secret.api_hash, proxy=default_proxy).start()
+client = TelegramClient('opentfd_session', secret.api_id, secret.api_hash).start()
 last_msg = None
 break_time = None
 last_msg_time = time()
